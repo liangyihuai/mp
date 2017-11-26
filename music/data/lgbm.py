@@ -3,7 +3,7 @@ import pandas as pd
 import lightgbm as lgb
 
 print('Loading data...')
-data_path = '../input/'
+data_path = 'D:\\LiangYiHuai\\kaggle\\music-recommendation-data\\input\\'
 train = pd.read_csv(data_path + 'train.csv', dtype={'msno': 'category',
                                                     'source_system_tab': 'category',
                                                     'source_screen_name': 'category',
@@ -94,8 +94,7 @@ params['num_leaves'] = 2 ** 8
 params['verbosity'] = 0
 params['metric'] = 'auc'
 
-model = lgb.train(params, train_set=d_train, num_boost_round=50, valid_sets=watchlist, \
-                  verbose_eval=5)
+model = lgb.train(params, train_set=d_train, num_boost_round=2000, valid_sets=watchlist, verbose_eval=5)
 
 print('Making predictions and saving them...')
 p_test = model.predict(X_test)
