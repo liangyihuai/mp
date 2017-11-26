@@ -1,4 +1,3 @@
-a = ['a','b','c','d']
-content = ''
-content = ','.join(a)
-print(content)
+import pandas as pd;
+import numpy as np;
+
