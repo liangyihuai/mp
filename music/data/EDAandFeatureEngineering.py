@@ -4,15 +4,15 @@ import lightgbm as lgb
 from sklearn.model_selection import train_test_split
 
 
-data_path = 'F:/Pusan/kaggle/music-recommendation-data/input/'
-
+# data_path = 'F:/Pusan/kaggle/music-recommendation-data/input/'
+data_path = 'D:\\LiangYiHuai\\kaggle\\music-recommendation-data\\input\\'
 print('Loading data...')
 train = pd.read_csv(data_path + 'train.csv', dtype={'msno' : 'category',
                                                 'source_system_tab' : 'category',
-                                                  'source_screen_name' : 'category',
-                                                  'source_type' : 'category',
-                                                  'target' : np.uint8,
-                                                  'song_id' : 'category'})
+                                                'source_screen_name' : 'category',
+                                                'source_type' : 'category',
+                                                'target' : np.uint8,
+                                                'song_id' : 'category'})
 test = pd.read_csv(data_path + 'test.csv', dtype={'msno' : 'category',
                                                 'source_system_tab' : 'category',
                                                 'source_screen_name' : 'category',
@@ -75,14 +75,10 @@ test.song_length.fillna(200000, inplace=True)
 test.song_length = test.song_length.astype(np.uint32)
 test.song_id = test.song_id.astype('category')
 
-# import gc
-# del members, songs; gc.collect();
-
 print('Done merging...')
 
 
-## Converting object types to categorical
-
+# Converting object types to categorical
 train = pd.concat([
         train.select_dtypes([], ['object']),
         train.select_dtypes(['object']).apply(pd.Series.astype, dtype='category')
@@ -99,7 +95,7 @@ def lyricist_count(x):
         return 0
     else:
         return sum(map(x.count, ['|', '/', '\\', ';'])) + 1
-    return sum(map(x.count, ['|', '/', '\\', ';']))
+
 
 train['lyricist'] = train['lyricist'].cat.add_categories(['no_lyricist'])
 train['lyricist'].fillna('no_lyricist',inplace=True)
@@ -107,6 +103,7 @@ train['lyricists_count'] = train['lyricist'].apply(lyricist_count).astype(np.int
 test['lyricist'] = test['lyricist'].cat.add_categories(['no_lyricist'])
 test['lyricist'].fillna('no_lyricist',inplace=True)
 test['lyricists_count'] = test['lyricist'].apply(lyricist_count).astype(np.int8)
+
 
 def composer_count(x):
     if x == 'no_composer':
@@ -125,7 +122,6 @@ def is_featured(x):
     if 'feat' in str(x) :
         return 1
     return 0
-
 
 train['artist_name'] = train['artist_name'].cat.add_categories(['no_artist'])
 train['artist_name'].fillna('no_artist', inplace=True)
@@ -216,6 +212,7 @@ def count_artist_played(x):
 train['count_artist_played'] = train['artist_name'].apply(count_artist_played).astype(np.int64)
 test['count_artist_played'] = test['artist_name'].apply(count_artist_played).astype(np.int64)
 
+
 print ("Train test and validation sets")
 for col in train.columns:
     if train[col].dtype == object:
@@ -228,13 +225,12 @@ y_train = train['target'].values
 
 
 X_tr, X_val, y_tr, y_val = train_test_split(X_train, y_train)
-
+#
 X_test = test.drop(['id'], axis=1)
 ids = test['id'].values
 
 
 # del train, test; gc.collect();
-
 lgb_train = lgb.Dataset(X_tr, y_tr)
 lgb_val = lgb.Dataset(X_val, y_val)
 print('Processed data...')
@@ -252,7 +248,7 @@ params = {
         'feature_fraction_seed': 1,
         'max_bin': 256,
         'num_rounds': 100,
-        'metric' : 'auc'
+        'metric' : 'auc',
     }
 
 lgbm_model = lgb.train(params, train_set = lgb_train, valid_sets = lgb_val, verbose_eval=5)
