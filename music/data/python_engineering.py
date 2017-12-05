@@ -241,8 +241,6 @@ train['count_artist_played'] = train['artist_name'].apply(count_artist_played).a
 test['count_artist_played'] = test['artist_name'].apply(count_artist_played).astype(np.int64)
 
 
-
-
 print ("Train test and validation sets")
 for col in train.columns:
     if train[col].dtype == object:
@@ -254,11 +252,11 @@ X_train = train.drop(['target'], axis=1)
 y_train = train['target'].values
 
 ##
-d_train = lgb.Dataset(X_train, y_train)
-watchlist = [d_train]
+# d_train = lgb.Dataset(X_train, y_train)
+# watchlist = [d_train]
 
 
-# X_tr, X_val, y_tr, y_val = train_test_split(X_train, y_train, random_state=0, shuffle=True)
+X_tr, X_val, y_tr, y_val = train_test_split(X_train, y_train, random_state=0, shuffle=True)
 # X_tr, X_val, y_tr, y_val = train_test_split(X_train, y_train, shuffle=True)
 
 #
@@ -267,8 +265,8 @@ ids = test['id'].values
 
 
 # del train, test; gc.collect();
-# lgb_train = lgb.Dataset(X_tr, y_tr)
-# lgb_val = lgb.Dataset(X_val, y_val)
+lgb_train = lgb.Dataset(X_tr, y_tr)
+lgb_val = lgb.Dataset(X_val, y_val)
 print('Processed data...')
 
 params = {
@@ -283,12 +281,11 @@ params = {
         'feature_fraction': 0.9,
         'feature_fraction_seed': 1,
         'max_bin': 256,
-        'num_rounds': 200,
+        'num_rounds': 700,
         'metric': 'auc',
     }
 
-# lgbm_model = lgb.train(params, train_set = lgb_train, valid_sets = lgb_val, verbose_eval=5)
-lgbm_model = lgb.train(params, train_set = d_train, verbose_eval=5)
+lgbm_model = lgb.train(params, train_set = lgb_train, valid_sets = lgb_val, verbose_eval=5)
 # Verbose_eval prints output after every 5 iterations
 
 predictions = lgbm_model.predict(X_test)
