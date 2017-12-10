@@ -12,7 +12,7 @@ from sklearn.model_selection import train_test_split
 
 
 # data_path = 'F:/Pusan/kaggle/music-recommendation-data/input/'
-data_path = 'F:/Pusan/kaggle/music-recommendation-data/input/'
+data_path = 'D:\\LiangYiHuai\\kaggle\\music-recommendation-data\\input\\'
 print('Loading data...')
 train = pd.read_csv(data_path + 'train.csv', dtype={'msno' : 'category',
                                                 'source_system_tab' : 'category',
@@ -51,24 +51,6 @@ def count_vals(x):
         return 1 + x.count('|')
 
 songs['number_of_genres'] = songs['genre_ids'].apply(count_vals)
-
-def split_genres(x, n):
-    # n is the number of the genre
-    if type(x) != str:
-        if n == 1:
-            if not np.isnan(x):
-                return int(x)
-            else:
-                return x
-    else:
-        if x.count('|') >= n-1:
-            return int(x.split('|')[n-1])
-
-max_genres = songs['number_of_genres'].max()
-
-for i in range(1,max_genres+1):
-    sp_g = lambda x: split_genres(x, i)
-    songs['genre_'+str(i)] = songs['genre_ids'].apply(sp_g)
 
 
 train = train.merge(songs, on='song_id', how='left')
@@ -248,26 +230,45 @@ train['count_artist_played'] = train['artist_name'].apply(count_artist_played).a
 test['count_artist_played'] = test['artist_name'].apply(count_artist_played).astype(np.int64)
 
 
-
-
 print ("Train test and validation sets")
 for col in train.columns:
-    if train[col].dtype == object:
-        train[col] = train[col].astype('category')
-        test[col] = test[col].astype('category')
+    # if train[col].dtype == object:
+    if col == 'target': continue;
+    train[col] = train[col].astype('category')
+    test[col] = test[col].astype('category')
 
 
-for col in train.columns:
-    if train[col].dtype.name == 'category':
-        train[col] = train[col].cat.codes;
-        test[col] = test[col].cat.codes;
-
-
+print("save tables");
 train.to_csv(data_path + 'median_train.txt', index=False)
 test.to_csv(data_path+'median_test.txt', index=False)
-field_numbers = [];
-for col in train.columns:
-    print(col, train[col].nunique());
+
+#
+# print('change all features to category type');
+# for col in train.columns:
+#     uniq_num = train[col].nunique()
+#     if train[col].dtype.name == 'category':
+#         train[col] = train[col].cat.codes;
+#         test[col] = test[col].cat.codes;
+#
+#
+# print('change negative elements to y')
+# def negative_op(x, y):
+#     if x < 0:
+#         return y;
+#     else:
+#         return x;
+#
+# for col in train.columns:
+#     uniq_num = train[col].nunique()
+#     train[col] = train[col].map(lambda x: negative_op(x, uniq_num));
+#
+# for col in test.columns:
+#     uniq_num = test[col].nunique()
+#     test[col] = test[col].map(lambda x: negative_op(x, uniq_num));
+#
+# print("save tables");
+# train.to_csv(data_path + 'median_train.txt', index=False)
+# test.to_csv(data_path+'median_test.txt', index=False)
 
 
 #

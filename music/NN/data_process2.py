@@ -12,27 +12,64 @@ from sklearn.model_selection import train_test_split
 
 
 # data_path = 'F:/Pusan/kaggle/music-recommendation-data/input/'
-data_path = 'F:/Pusan/kaggle/music-recommendation-data/input/'
+data_path = 'D:\\LiangYiHuai\\kaggle\\music-recommendation-data\\input\\'
 print('Loading data...')
-train = pd.read_csv(data_path + 'median_train.txt')
-test = pd.read_csv(data_path + 'median_test.txt')
+train = pd.read_csv(data_path + 'median_train.txt', dtype=np.uint32)
+test = pd.read_csv(data_path + 'median_test.txt', dtype=np.uint32)
 
-field_number = 0;
-for col in train.columns:
-    num = train[col].nunique()
+field_nums = [];
+for col in test.columns:
+    num = test[col].nunique()
     print(col, num);
-    field_number += num;
+    field_nums.append(num);
 
-print("field num: "+str(field_number));
-
+print("change target location");
 target = train.pop('target')
 train.insert(0, 'target', target)
 
-one_hot_train = train.applymap(lambda x: str(x)+':1')
-one_hot_test = test.applymap(lambda x:str(x)+':1')
+def to_string_op(x, start_index):
+    return str(x+start_index)+':1';
 
-one_hot_train.to_csv(data_path + 'one_hot_train.txt', index=False, columns=False)
-one_hot_test.to_csv(data_path+'one_hot_test.txt', index=False, columns=False)
+print("apply test elements");
+test = test.drop(['id'], axis=1)
+one_hot_test = pd.DataFrame()
+index = 0;
+start_index = 0;
+for col in test.columns:
+    one_hot_test[col] = test[col].apply(lambda x: to_string_op(x, start_index)).astype(np.str_);
+    start_index += field_nums[index]
+    index += 1;
+
+print("save");
+one_hot_test.to_csv(data_path+'one_hot_test.txt', index=False)
+
+field_nums = [];
+train_field_num = 0;
+for col in train.columns:
+    if col == 'target': continue;
+    num = train[col].nunique()
+    print(col, num);
+    train_field_num += num;
+    field_nums.append(num);
+
+print ("train field num = ", train_field_num);
+
+
+#
+# print("apply train elements");
+# one_hot_train = pd.DataFrame();
+# index = 0;
+# start_index = 0;
+# for col in train.columns:
+#     if col == 'target':
+#         one_hot_train[col] = train[col];
+#         continue;
+#     one_hot_train[col] = train[col].apply(lambda x: to_string_op(x, start_index)).astype(np.str_)
+#     start_index += field_nums[index]
+#     index += 1;
+#
+# print("save");
+# one_hot_train.to_csv(data_path + 'one_hot_train.txt', index=False)
 
 
 
