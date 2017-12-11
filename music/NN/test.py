@@ -2,9 +2,15 @@ import numpy as np;
 import pandas as pd;
 
 
-df = pd.DataFrame(np.random.rand(5,3),columns=['col1','col2','col3'])
-df = df.applymap(lambda x: x*100);
-print(df)
+df = pd.DataFrame({'a':[3, 3, None], 'b':[2, 2, 1], 'c':[5, 6, 8]})
 
-df['col2'][1] = "helloworld";
-print df;
+map = {}
+for col in df.columns:
+    for v in df[col].unique():
+        map[v] = 1;
+
+print (map);
+
+np.nan
+
+

@@ -124,6 +124,7 @@ test['lyricist'].fillna('no_lyricist',inplace=True)
 test['lyricists_count'] = test['lyricist'].apply(lyricist_count).astype(np.int8)
 
 
+
 def composer_count(x):
     if x == 'no_composer':
         return 0
@@ -137,6 +138,8 @@ test['composer'] = test['composer'].cat.add_categories(['no_composer'])
 test['composer'].fillna('no_composer',inplace=True)
 test['composer_count'] = test['composer'].apply(composer_count).astype(np.int8)
 
+
+
 def is_featured(x):
     if 'feat' in str(x) :
         return 1
@@ -148,6 +151,7 @@ train['is_featured'] = train['artist_name'].apply(is_featured).astype(np.int8)
 test['artist_name'] = test['artist_name'].cat.add_categories(['no_artist'])
 test['artist_name'].fillna('no_artist', inplace=True)
 test['is_featured'] = test['artist_name'].apply(is_featured).astype(np.int8)
+
 
 
 def artist_count(x):
@@ -229,18 +233,24 @@ def count_artist_played(x):
 train['count_artist_played'] = train['artist_name'].apply(count_artist_played).astype(np.int64)
 test['count_artist_played'] = test['artist_name'].apply(count_artist_played).astype(np.int64)
 
+train.pop('lyricist');
+test.pop('lyricist');
+train.pop('composer');
+test.pop('composer');
+train.pop('artist_name');
+test.pop('artist_name');
+
 
 print ("Train test and validation sets")
 for col in train.columns:
-    # if train[col].dtype == object:
-    if col == 'target': continue;
-    train[col] = train[col].astype('category')
-    test[col] = test[col].astype('category')
+    if train[col].dtype == object:
+        train[col] = train[col].astype('category')
+        test[col] = test[col].astype('category')
 
 
 print("save tables");
-train.to_csv(data_path + 'median_train.txt', index=False)
-test.to_csv(data_path+'median_test.txt', index=False)
+train.to_csv(data_path + 'median_train.txt', index=False, sep='\t')
+test.to_csv(data_path+'median_test.txt', index=False, sep='\t')
 
 #
 # print('change all features to category type');
